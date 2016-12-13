@@ -127,6 +127,17 @@ class Grid(object):
     # Get the current so we can calculate the power afterwards. Usefull to check if a fan is connected
     # Maybe not that precise - I still have to measure the precision.
     def get_current(self, index):
-        # return System.Math.Round((double)bytes[3] + (double)(bytes[4] / 16) / 10.0 + (double)(bytes[4] % 16) / 100.0, 2);
-        #TODO
-        pass
+        
+        sendbuffer = [self.ID_GET_CURRENT, index]
+
+        response = self.transmit(sendbuffer, 5)
+
+        if len(response)  != 5:
+            return -1.0
+
+        # This time, we keep the 2nd digit. I don't think the current will go over 1A so it is required for a 
+        # "precise" measurement -> Again preparations for linux kernel.
+        tmp_current = int(response[3]) * 1000 + (int(response[4]) >> 4) * 100 + ((int(response[4]) << 4 ) >> 4) * 10
+
+
+        return float(tmp_current)/1000.0
