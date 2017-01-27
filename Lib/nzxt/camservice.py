@@ -12,6 +12,7 @@ GNU General Public License for more details.
 import nzxt
 import json
 
+# Allow comments starting with '#' in the config file. JSON does not support comments natively
 def cleanupconfig(str):
     buffer = ""
     for i in str.splitlines():
@@ -33,7 +34,18 @@ class Camservice(object):
         After the initialization is finished, all components can be accessed and served via
         a server, integrated in a live website etc. This makes it possible to keep cam4linux
         versatile and compatible with any other programming language which supports a json
-        api. 
+        api.
+
+        The following functions are quite abstract and not easy to understand. Also, I still
+        have to comment the functions. Do not change it unless you know what you are doing.
+
+        Integration of new devices:
+            A device (python class) with:
+                json_get()  outputs a dictionary with all values which are currently measured
+
+                json_set()  some sort of function, that takes a dictionary as input and sets
+                            the devices values according to the json file. Output OK if 
+                            everything worked. If not, Output ERROR. Both as a string.
     """
 
     devices = []
@@ -83,29 +95,30 @@ class Camservice(object):
     def getdevice(self, index):
         # JSON for Grid devices
         if self.devices[index]["type"] == "grid":
-            return {
-                "rpm": {
-                    0: self.devices[index]["node"].get_rpm(0),
-                    1: self.devices[index]["node"].get_rpm(1),
-                    2: self.devices[index]["node"].get_rpm(2),
-                    3: self.devices[index]["node"].get_rpm(3),
-                    4: self.devices[index]["node"].get_rpm(4),
-                    5: self.devices[index]["node"].get_rpm(5)
-                },
-                "current": {
-                    0: self.devices[index]["node"].get_power(0),
-                    1: self.devices[index]["node"].get_power(1),
-                    2: self.devices[index]["node"].get_power(2),
-                    3: self.devices[index]["node"].get_power(3),
-                    4: self.devices[index]["node"].get_power(4),
-                    5: self.devices[index]["node"].get_power(5)
-                }
-            }
+            return self.devices[index]["node"].get_json()
+
+    def setdevice(self, index, values):
+        return self.devices[index]["node"].set_json(values)
+
+    def setdevices(self, setlist):
+        retbuf = {}
+        # Go through all registered devices
+        for i in range(len(self.devices)):
+            # Check if the device should be set to a new value
+            if self.devices[i]["name"] in setlist.keys():
+                retbuf[self.devices[i]["name"]] = self.setdevice(i, setlist[self.devices[i]["name"]])
+
+        return json.dumps(retbuf)
 
     def query(self, query):
         try:
             if json.loads(query)["type"] == "all":
                 return self.getall()
+
+            if json.loads(query)["type"] == "set":
+                tmp = json.loads(query)
+                del tmp["type"]
+                return self.setdevices(tmp)
 
         except Exception as e:
             print e

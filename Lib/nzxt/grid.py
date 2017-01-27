@@ -38,7 +38,7 @@ class Grid(object):
     def __init__(self, port):
         super(Grid, self).__init__()
         self.port = port
-        self.connection = serial.Serial(port,baudrate=4800) # Maybethey think that no error correction 
+        self.connection = serial.Serial(port,baudrate=4800) # Maybe they think that no error correction 
                                                             # is needed when they use low baud rates
         
         # Lets start an update routine so we don't have to deal with the slow response times!
@@ -62,8 +62,8 @@ class Grid(object):
 
         tmp = self.connection.read(self.connection.inWaiting())
 
-        # Converting the character array to an int array makes it easier to implement further operations without
-        # converting the array in each individually
+        # Converting the character array to an int array makes it easier to implement further operations
+        # without converting the array in each individually
         returnbuffer = []
         for i in tmp:
             returnbuffer.append(ord(i))
@@ -192,3 +192,44 @@ class Grid(object):
             return self._powers[index]
         else:
             return -1.0
+
+    # Makes integration in camservice easier
+    def get_json(self):
+        return {
+           "rpm": {
+                0: self.get_rpm(0),
+                1: self.get_rpm(1),
+                2: self.get_rpm(2),
+                3: self.get_rpm(3),
+                4: self.get_rpm(4),
+                5: self.get_rpm(5)
+            },
+            "current": {
+                0: self.get_power(0),
+                1: self.get_power(1),
+                2: self.get_power(2),
+                3: self.get_power(3),
+                4: self.get_power(4),
+                5: self.get_power(5)
+            }
+        }
+
+    # Same as get_json
+    # !!!TODO!!! Quite slow (0.5-3 seconds), maybe execute as thread
+    def set_json(self, toset):
+        inputok = True
+
+        for i in toset.keys():
+        
+            if int(i) not in range(6):
+                inputok = False
+
+            if toset[i] not in range(101):
+                inputok = False
+
+            self.set_percentage(int(i), toset[i])
+
+        if inputok:
+            return "OK"
+        else:
+            return "ERROR"

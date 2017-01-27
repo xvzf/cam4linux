@@ -18,7 +18,7 @@ import nzxt
 SERVERPORT = 3567
 
 def main():
-    # Create camservice instance, only one at a time can run! 
+    # Create camservice instance, only one at a time can run (with the same devices)!
     c = nzxt.Camservice("/etc/cam4linux/config.json")
 
     # Create socket for server
@@ -28,6 +28,7 @@ def main():
         s.bind(('localhost',SERVERPORT))
         s.listen(1)
 
+        # !!!TODO!!! Non blocking
         while True:
             # Wait for client to connect
             conn, addr = s.accept()
