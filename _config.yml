@@ -1,0 +1,8 @@
+title: Cam4linux
+description: Python library and software suite for nzxt devices
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-midnight
+
+gems:
+  - jekyll-mentions
