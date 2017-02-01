@@ -204,14 +204,15 @@ class Grid(object):
                 4: self.get_rpm(4),
                 5: self.get_rpm(5)
             },
-            "current": {
+            "power": {
                 0: self.get_power(0),
                 1: self.get_power(1),
                 2: self.get_power(2),
                 3: self.get_power(3),
                 4: self.get_power(4),
                 5: self.get_power(5)
-            }
+            },
+            "type": "grid"
         }
 
     # Same as get_json
