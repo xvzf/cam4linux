@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 CAM4LINUX - a control suite for nzxt devices
 Copyright (C) 2016 Matthias Riegler <matthias@xvzf.tech>

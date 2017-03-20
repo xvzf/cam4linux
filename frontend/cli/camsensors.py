@@ -1,4 +1,4 @@
-#!/bin/python2
+#!/usr/bin/env python3
 """
 CAM4LINUX - a control suite for nzxt devices
 Copyright (C) 2017 Matthias Riegler <matthias@xvzf.tech>
@@ -14,6 +14,9 @@ import socket
 import json
 import sys
 
+
+# @TODO: Add comments
+
 prefix = "  "
 
 def servercall(query, addr, port):
@@ -23,39 +26,43 @@ def servercall(query, addr, port):
         s.connect((addr,port))
 
         # Transmit query
-        s.sendall(query)
+        s.sendall(query.encode('utf-8'))
 
         # Receive response
         jsonbuf = s.recv(65535)
 
     except Exception as e:
+        print(e, file=sys.stderr)
         raise
+
     finally:
         s.close()
 
-    return json.loads(jsonbuf)
+    return json.loads(jsonbuf.decode('utf-8'))
 
 def printgrid(grid):
 
-    print prefix + "RPM:"
+    print(prefix + "RPM:")
     for i in range(6):
-        print 2*prefix + str(i) + ":\t\t" + str(grid["rpm"][str(i)]) + " RPM"
+        print(2*prefix + str(i) + ":\t\t" + str(grid["rpm"][str(i)]) + " RPM")
 
     totalpower = 0.0
     for i in range(6):
         totalpower = totalpower + grid["power"][str(i)]
 
-    print prefix + "Power:"
-    print 2*prefix + "Total:\t" + str(totalpower) + " W"
+    print(prefix + "Power:")
+    print(2*prefix + "Total:\t" + str(totalpower) + " W")
     for i in range(6):
-        print 2*prefix + str(i) + ":\t\t" + str(grid["power"][str(i)]) + " W"
+        print(2*prefix + str(i) + ":\t\t" + str(grid["power"][str(i)]) + " W")
 
 
 def printout(device):
     if device["type"] == "grid":
             printgrid(device)
 
+
 def setdevice(args):
+
     setquery = {}
     setquery["type"] = "set"
     if args.set:
@@ -70,22 +77,25 @@ def setdevice(args):
     port=3567
 
     if args.addr:
-        print "[+] Using custom IP"
+        print("[+] Using custom IP")
         addr = args.addr
 
     if args.port:
-        print "[+] Using custom Port"
+        print("[+] Using custom Port")
         port = int(args.port)
 
     retbuf = servercall(json.dumps(setquery), addr,port)
 
     try:
+
         if retbuf[args.set] == "OK":
-            print "OK"
+            print("OK")
+        
         else:
-            print "ERROR"
+            print("ERROR")
+
     except Exception as e:
-        print "ERROR"
+        print("ERROR")
 
 
 def main():
@@ -107,11 +117,11 @@ def main():
     port=3567
 
     if args.addr:
-        print "[+] Using custom IP"
+        print("[+] Using custom IP")
         addr = args.addr
 
     if args.port:
-        print "[+] Using custom Port"
+        print("[+] Using custom Port")
         port = int(args.port)
 
     retbuf = servercall(json.dumps({"type":"all"}), addr,port)
@@ -119,13 +129,13 @@ def main():
     if args.device:
         for i in retbuf.keys():
             if i in args.device:
-                print i + ":"
+                print(i + ":")
                 printout(retbuf[i])
         
         return
 
     for i in retbuf.keys():
-        print i + ":"
+        print(i + ":")
         printout(retbuf[i])
 
 

@@ -1,4 +1,4 @@
-#!/bin/python2
+#!/usr/bin/env python3
 """
 CAM4LINUX - a control suite for nzxt devices
 Copyright (C) 2017 Matthias Riegler <matthias@xvzf.tech>
@@ -11,6 +11,7 @@ GNU General Public License for more details.
 
 import nzxt
 import json
+import sys
 
 # Allow comments starting with '#' in the config file. JSON does not support comments natively
 def cleanupconfig(str):
@@ -54,7 +55,7 @@ class Camservice(object):
         super(Camservice, self).__init__()
         self.configfile = configfile
         self.readconfig()
-        print self.devices
+        print(self.devices)
 
     def readconfig(self):
         try:
@@ -63,7 +64,7 @@ class Camservice(object):
                 self.parseconfig(parsed_json)
 
         except IOError:
-            print "[-] Could not open configuration file, exiting"
+            print("[-] Could not open configuration file, exiting", file=sys.stderr)
         
     def add_device(self, name, device):
         if device["type"] == "grid":
@@ -121,5 +122,5 @@ class Camservice(object):
                 return self.setdevices(tmp)
 
         except Exception as e:
-            print e
+            print(e, file=sys.stderr)
             return '{}'

@@ -1,4 +1,4 @@
-#!/bin/python2
+#!/usr/bin/env python3
 """
 CAM4LINUX - a control suite for nzxt devices
 Copyright (C) 2017 Matthias Riegler <matthias@xvzf.tech>
@@ -28,7 +28,7 @@ def main():
         s.bind(('localhost',SERVERPORT))
         s.listen(1)
 
-        # !!!TODO!!! Non blocking
+        # @TODO Complete rework - no blocking - multiple read connections. Works for now
         while True:
             # Wait for client to connect
             conn, addr = s.accept()
@@ -36,21 +36,23 @@ def main():
                 data = conn.recv(65535)
                 # Query from camservice
                 if data:
-                    retbuf = c.query(data)
+                    retbuf = c.query(data.decode('UTF-8'))
                     if retbuf:
-                        conn.sendall(retbuf)
+                        conn.sendall(retbuf.encode('UTF-8'))
             except Exception as e:
                 raise
             finally:
                 conn.close()
 
     except socket.error as e:
-        print >>sys.stderr, e
+        print(e, file=sys.stderr)
+
     except KeyboardInterrupt as e:
         s.close()
         
     except Exception as e:
-        print >>sys.stderr, e
+        print(e, file=sys.stderr)
+
     finally:
         s.close()
 
