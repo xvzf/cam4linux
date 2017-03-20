@@ -27,5 +27,20 @@ Example config:
 Currently the only way is via `camsensors.py`. It acts like the `sensor` command of `lm_sensors` and includes a basic interface to control fan speeds:
 
 {% highlight Bash %}
+usage: camsensors.py [-h] [--device DEVICE [DEVICE ...]] [--addr ADDR]
+                     [--port PORT] [--set SET] [--value VALUE]
+                     [--ports PORTS [PORTS ...]]
 
+CAM4LINUX CLI
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --device DEVICE [DEVICE ...]
+                        Select device
+  --addr ADDR           Custom IP
+  --port PORT           Custom Port
+  --set SET             Set value for device
+  --value VALUE         Value to set
+  --ports PORTS [PORTS ...]
+                        Select output ports
 {% endhighlight %}
