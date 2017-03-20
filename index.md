@@ -7,7 +7,7 @@ Currently, CAM4LINUX has to be installed manual. I will push a systemd service f
 Configuration is very simple! It follows a [JSON](https://en.wikipedia.org/wiki/JSON) like style!\\
 The standart config is placed unter `/etc/cam4linux/config.json`.\\
 Example config:
-{% highlight %}
+{% highlight Bash %}
 {
 # CAM4LINUX example config file!
 # Project home is right here: https://github.com/xvzf/cam4linux
