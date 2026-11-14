@@ -1,0 +1,3 @@
+# cam4linux: give the logged-in user access to NZXT HID controllers
+# (fan duty + LEDs). Readings come from the nzxt-smart2 hwmon driver.
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="1e71", TAG+="uaccess"
