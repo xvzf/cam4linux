@@ -9,6 +9,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-__all__ = ["grid", "camservice"]
+__all__ = ["grid", "smartdevice2", "camservice"]
 from nzxt.grid import Grid
+from nzxt.smartdevice2 import SmartDevice2
 from nzxt.camservice import Camservice

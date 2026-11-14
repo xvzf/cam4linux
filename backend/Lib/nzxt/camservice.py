@@ -49,13 +49,18 @@ class Camservice(object):
                             everything worked. If not, Output ERROR. Both as a string.
     """
 
-    devices = []
-    
     def __init__(self, configfile):
         super(Camservice, self).__init__()
+        self.devices = []
         self.configfile = configfile
         self.readconfig()
-        print(self.devices)
+
+        # No (usable) config -> just take every supported device we can find
+        if not self.devices:
+            self.autodetect()
+
+        for d in self.devices:
+            print("[+] %s: %s" % (d["name"], d["type"]), flush=True)
 
     def readconfig(self):
         try:
@@ -64,24 +69,29 @@ class Camservice(object):
                 self.parseconfig(parsed_json)
 
         except IOError:
-            print("[-] Could not open configuration file, exiting", file=sys.stderr)
-        
-    def add_device(self, name, device):
-        if device["type"] == "grid":
-            try:
-                port = device["port"]
-            except Exception as e:
-                return
-            finally:
-                self.devices.append(
-                    {
-                        "type": "grid",
-                        "name": name,
-                        "node": nzxt.Grid(port)
-                    }
-                )
+            print("[-] Could not open configuration file %s, autodetecting devices" % self.configfile,
+                  file=sys.stderr)
 
-    
+    def autodetect(self):
+        from nzxt.smartdevice2 import find_hwmon
+        for n, path in enumerate(find_hwmon()):
+            self.add_device("smartdevice%d" % n, {"type": "smartdevice2", "hwmon": path})
+
+    def add_device(self, name, device):
+        try:
+            if device["type"] == "grid":
+                node = nzxt.Grid(device["port"])
+            elif device["type"] == "smartdevice2":
+                node = nzxt.SmartDevice2(device.get("hwmon"), int(device.get("index", 0)))
+            else:
+                print("[-] %s: unknown device type %s" % (name, device["type"]), file=sys.stderr)
+                return
+        except Exception as e:
+            print("[-] %s: could not initialize device: %s" % (name, e), file=sys.stderr)
+            return
+
+        self.devices.append({"type": device["type"], "name": name, "node": node})
+
     def parseconfig(self, cfg):
         for i in cfg.keys():
             self.add_device(i, cfg[i])
@@ -94,9 +104,7 @@ class Camservice(object):
         return json.dumps(returndict)
 
     def getdevice(self, index):
-        # JSON for Grid devices
-        if self.devices[index]["type"] == "grid":
-            return self.devices[index]["node"].get_json()
+        return self.devices[index]["node"].get_json()
 
     def setdevice(self, index, values):
         return self.devices[index]["node"].set_json(values)

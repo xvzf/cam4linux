@@ -19,10 +19,12 @@ SERVERPORT = 3567
 
 def main():
     # Create camservice instance, only one at a time can run (with the same devices)!
-    c = nzxt.Camservice("/etc/cam4linux/config.json")
+    configfile = sys.argv[1] if len(sys.argv) > 1 else "/etc/cam4linux/config.json"
+    c = nzxt.Camservice(configfile)
 
     # Create socket for server
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     try:
         # Bind to the given port on localhost.
         s.bind(('localhost',SERVERPORT))
