@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=cam4linux
+GenericName=Fan Control
+GenericName[de]=Lüftersteuerung
+Comment=Fan curves and RGB lighting for NZXT cases
+Comment[de]=Lüfterkurven und RGB-Beleuchtung für NZXT-Gehäuse
+Exec=@BINDIR@/cam4linux
+Icon=cam4linux
+Terminal=false
+Categories=System;Settings;HardwareSettings;
+Keywords=NZXT;Fan;RGB;LED;CAM;Lüfter;
+Keywords[de]=NZXT;Lüfter;Lüftersteuerung;RGB;LED;CAM;

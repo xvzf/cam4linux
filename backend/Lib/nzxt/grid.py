@@ -9,7 +9,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import serial
 import time
 from _thread import start_new_thread # For now let's keep it - @TODO Replace the threading library
 
@@ -31,16 +30,17 @@ class Grid(object):
 
     everythingok        = False
 
-    # Buffer Array for the update thread
-    _rpms               = [0, 0, 0, 0, 0, 0]
-    _powers             = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-
-    # Buffer for speeds to set
-    _set_rpms           = [-1, -1, -1, -1, -1, -1]
-
-
     def __init__(self, port):
         super(Grid, self).__init__()
+        import serial # only needed for the Grid, so other devices work without pyserial
+
+        # Buffer Array for the update thread (per instance!)
+        self._rpms      = [0, 0, 0, 0, 0, 0]
+        self._powers    = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+        # Buffer for speeds to set, -1 = leave untouched
+        self._set_rpms  = [-1, -1, -1, -1, -1, -1]
+
         self.port = port
         self.connection = serial.Serial(port,baudrate=4800) # Maybe they think that no error correction 
                                                             # is needed when they use low baud rates
@@ -194,11 +194,11 @@ class Grid(object):
     # Should be self explaining as well
     def _set_percentage(self, index, p):
         
-        if p > 100:
+        if p < 0 or p > 100:
             return -1
-       
+
         # Now we use a minimum voltage!
-        return self._set_voltage(index, (self.min_voltage + float(p)/100.0) * (self.max_voltage - self.min_voltage))
+        return self._set_voltage(index, self.min_voltage + float(p)/100.0 * (self.max_voltage - self.min_voltage))
 
 
     # Now updated in the _update() function.
@@ -256,7 +256,7 @@ class Grid(object):
             if int(i) not in range(6):
                 inputok = False
 
-            if toset[i] not in range(101):
+            if int(toset[i]) not in range(101):
                 inputok = False
 
             if inputok:

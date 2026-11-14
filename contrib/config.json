@@ -1,0 +1,9 @@
+# cam4linux configuration - copy to /etc/cam4linux/config.json
+# Without a config file, all NZXT Smart Device V2 controllers are autodetected.
+{
+    "smartdevice0": {
+        "type": "smartdevice2"      # NZXT Smart Device V2 / RGB & Fan Controller (nzxt-smart2 kernel driver)
+        # "hwmon": "/sys/class/hwmon/hwmon7"   # optional, otherwise autodetected
+    }
+    # "grid0": { "type": "grid", "port": "/dev/ttyACM0" }   # old NZXT Grid (needs pyserial)
+}

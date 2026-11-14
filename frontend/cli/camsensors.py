@@ -40,25 +40,27 @@ def servercall(query, addr, port):
 
     return json.loads(jsonbuf.decode('utf-8'))
 
-def printgrid(grid):
+def printports(device):
+    ports = sorted(device["rpm"].keys(), key=int)
 
     print(prefix + "RPM:")
-    for i in range(6):
-        print(2*prefix + str(i) + ":\t\t" + str(grid["rpm"][str(i)]) + " RPM")
+    for i in ports:
+        line = 2*prefix + i + ":\t\t" + str(device["rpm"][i]) + " RPM"
+        if "percent" in device:
+            line += "\t(" + str(device["percent"][i]) + " %)"
+        print(line)
 
-    totalpower = 0.0
-    for i in range(6):
-        totalpower = totalpower + grid["power"][str(i)]
+    totalpower = sum(device["power"][i] for i in ports if device["power"][i] > 0)
 
     print(prefix + "Power:")
-    print(2*prefix + "Total:\t" + str(totalpower) + " W")
-    for i in range(6):
-        print(2*prefix + str(i) + ":\t\t" + str(grid["power"][str(i)]) + " W")
+    print(2*prefix + "Total:\t" + str(round(totalpower, 2)) + " W")
+    for i in ports:
+        print(2*prefix + i + ":\t\t" + str(device["power"][i]) + " W")
 
 
 def printout(device):
-    if device["type"] == "grid":
-            printgrid(device)
+    if device["type"] in ("grid", "smartdevice2"):
+        printports(device)
 
 
 def setdevice(args):
@@ -88,14 +90,10 @@ def setdevice(args):
 
     try:
 
-        if retbuf[args.set] == "OK":
-            print("OK")
-        
-        else:
-            print("ERROR")
+        print(retbuf[args.set])
 
-    except Exception as e:
-        print("ERROR")
+    except KeyError:
+        print("ERROR: unknown device " + args.set)
 
 
 def main():
@@ -104,8 +102,8 @@ def main():
     parser.add_argument('--addr', help='Custom IP')
     parser.add_argument('--port', help='Custom Port')
     parser.add_argument('--set', help='Set value for device')
-    parser.add_argument('--value', help='Value to set')
-    parser.add_argument('--ports', help='Select output ports', nargs='+')
+    parser.add_argument('--value', help='Fan speed in percent (0-100)')
+    parser.add_argument('--ports', help='Select output ports (0-based)', nargs='+')
     
     args = parser.parse_args()
 

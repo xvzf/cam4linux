@@ -1,0 +1,12 @@
+[Unit]
+Description=cam4linux – NZXT fan control and lighting
+After=graphical-session.target
+
+[Service]
+ExecStart=@PYTHON@ -m cam4linux --daemon
+Environment=PYTHONPATH=@LIBDIR@
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target
